@@ -1,0 +1,7 @@
+{
+  "fullName": "John Doe",
+  "relationship": "Father",
+  "hobbies": ["Fishing", "Hunting", "Golf", "Reading", "Traveling"],
+  "age": 20,
+  "gender": "male"
+}
