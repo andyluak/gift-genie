@@ -6,7 +6,6 @@ import {
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
 import React from "react";
-import mockUser from "@/mock/mockUser.json";
 import Card from "@/components/ui/Card";
 import { prisma } from "@/db/client";
 
@@ -55,10 +54,10 @@ const Dashboard = ({ members, upcomingEvents }) => {
           })}
         </div>
         <Link href="/dashboard/add-member">
-          <Button>Add more members</Button>
+          <Button className="mt-8">Add more members</Button>
         </Link>
       </section>
-      <aside className="md:border-l-2 md:pl-8 p-full md:p-[inherit]">
+      <aside className="md:border-l-2 border-purple-200 md:pl-8 p-full md:p-[inherit]">
         <TypographyH3 className="mb-8">Upcoming Events</TypographyH3>
         {upcomingEvents.length === 0 && (
           <TypographyP>No upcoming events</TypographyP>
@@ -69,7 +68,7 @@ const Dashboard = ({ members, upcomingEvents }) => {
               return (
                 <div key={event.id}>
                   <TypographyP className="font-bold">
-                    {event.member.fullName} {event.ocassion}
+                  🎉 {event.member.fullName} {event.ocassion} 🎉
                   </TypographyP>
                   <TypographyP className="text-sm">
                     {formatDate(event.date)}
@@ -91,6 +90,7 @@ export async function getServerSideProps(context) {
       member: true,
       ocassion: true,
       date: true,
+      id: true,
     },
   });
   return {
