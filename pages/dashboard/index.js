@@ -8,6 +8,7 @@ import Link from "next/link";
 import React from "react";
 import mockUser from "@/mock/mockUser.json";
 import Card from "@/components/ui/Card";
+import { prisma } from "@/db/client";
 
 const Dashboard = ({ members, upcomingEvents }) => {
   if (members.length === 0) {
@@ -41,37 +42,21 @@ const Dashboard = ({ members, upcomingEvents }) => {
       <section className="p-full space-y-4 md:space-y-8 md:col-span-3">
         <TypographyH1>Your Members</TypographyH1>
         <div className="grid grid-cols-1 gap-12 gap-x-32 md:grid-cols-2 place-content-between">
-          <Card
-            id="1"
-            fullName={fullName}
-            relationship={relationship}
-            hobbies={hobbies}
-          />
-          <Card
-            id="1"
-            fullName={fullName}
-            relationship={relationship}
-            hobbies={hobbies}
-          />
-          <Card
-            id="1"
-            fullName={fullName}
-            relationship={relationship}
-            hobbies={hobbies}
-          />
-          <Card
-            id="1"
-            fullName={fullName}
-            relationship={relationship}
-            hobbies={hobbies}
-          />
-          <Card
-            id="1"
-            fullName={fullName}
-            relationship={relationship}
-            hobbies={hobbies}
-          />
+          {members.map((member) => { 
+            return (
+              <Card
+                key={member.id}
+                id={member.id}
+                fullName={member.fullName}
+                relationship={member.relationship}
+                hobbies={member.hobbies}
+              />
+            );
+          })}
         </div>
+        <Link href="/dashboard/add-member">
+          <Button>Add more members</Button>
+        </Link>
       </section>
       <aside className="md:border-l-2 md:pl-8 p-full md:p-[inherit]">
         <TypographyH3 className="mb-8">Upcoming Events</TypographyH3>
@@ -100,10 +85,10 @@ const Dashboard = ({ members, upcomingEvents }) => {
 };
 
 export async function getServerSideProps(context) {
-  const member = mockUser;
+  const members =await  prisma.member.findMany()
   return {
     props: {
-      members: [member],
+      members,
       upcomingEvents: [
         {
           id: 1,

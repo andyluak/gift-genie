@@ -10,9 +10,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/Select";
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
 
 const AddMember = () => {
+  const router = useRouter();
+  const [gender, setGender] = useState(false);
+  const [hobbies, setHobbies] = useState([]);
+
+  const onAddMember = async (e) => {
+    e.preventDefault();
+    const form = new FormData(e.target);
+    const formData = Object.fromEntries(form);
+
+    const { age, fullName, relationship } = formData;
+
+    try {
+      const response = await fetch("/api/add-member", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ age, fullName, relationship, gender, hobbies }),
+      } );
+      
+      router.push("/dashboard");
+    } catch (error) {
+      console.log(error);
+    }
+
+    
+  };
+
   return (
     <main className="p-full space-y-8 md:space-y-16">
       <div>
@@ -23,11 +50,15 @@ const AddMember = () => {
           }
         </TypographyP>
       </div>
-      <form className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-8 md:w-2/3">
+      <form
+        className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-8 md:w-2/3"
+        onSubmit={onAddMember}
+      >
         <div className="space-y-2 col-span-2 md:col-span-1">
           <Label htmlFor="fullName">Full Name</Label>
           <Input
             id="fullName"
+            name="fullName"
             type="text"
             className="border-gray-300"
             placeholder="Enter your full name"
@@ -35,11 +66,23 @@ const AddMember = () => {
         </div>
         <div className="space-y-2 col-span-2 md:col-span-1">
           <Label htmlFor="age">Age</Label>
-          <Input id="age" type="number" placeholder={"Age"} defaultValue={20} />
+          <Input
+            id="age"
+            type="number"
+            placeholder={"Age"}
+            defaultValue={20}
+            name="age"
+          />
         </div>
         <div className="space-y-2 col-span-2 md:col-span-1">
           <Label htmlFor="gender">Gender</Label>
-          <Select id="gender">
+          <Select
+            id="gender"
+            value={gender}
+            onValueChange={(e) => {
+              setGender(e);
+            }}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select your gender" />
             </SelectTrigger>
@@ -54,6 +97,7 @@ const AddMember = () => {
           <Label htmlFor="relationship">Relationship with member</Label>
           <Input
             id="relationship"
+            name="relationship"
             type="text"
             className="border-gray-300"
             placeholder="Enter your relationship"
@@ -61,7 +105,9 @@ const AddMember = () => {
         </div>
         <div className="space-y-2 col-span-2">
           <Label htmlFor="Hobbies">Hobbies</Label>
-          <CreatableSelect />
+          <CreatableSelect values={hobbies} onChange={(e) => 
+            setHobbies(e) 
+          }/>
         </div>
         <Button type="submit">Add Member</Button>
       </form>

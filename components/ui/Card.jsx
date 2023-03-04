@@ -3,6 +3,8 @@ import { TypographyH3, TypographyP } from "../Typography";
 import Link from "next/link";
 
 const Card = ({id, fullName, relationship, hobbies}) => {
+  //hobbies is a string of comma separated values
+
   return (
     <Link
       href={`/dashboard/${id}`}
@@ -15,7 +17,7 @@ const Card = ({id, fullName, relationship, hobbies}) => {
         </TypographyP>
         <TypographyP>Hobbies</TypographyP>
         <ul className="flex flex-row flex-wrap gap-2">
-          {hobbies.map((hobby) => (
+          {hobbies.split(',').map((hobby) => (
             <li className="bg-blue-100 p-2 select-none" key={hobby}>
               {hobby}
             </li>
