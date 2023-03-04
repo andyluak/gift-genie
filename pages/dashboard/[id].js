@@ -148,10 +148,10 @@ const IndividualMember = ({ member, upcomingEvents }) => {
     const formData = Object.fromEntries(form);
     const { ocassion, giftType, previousGifts, date } = formData;
     const gifts = selectedGifts.join(", ");
-    const response = await fetch("/api/add-event", { 
-      method: "POST", 
+    const response = await fetch("/api/add-event", {
+      method: "POST",
       body: JSON.stringify({
-        ocassion, 
+        ocassion,
         giftType,
         previousGifts,
         date,
@@ -161,8 +161,8 @@ const IndividualMember = ({ member, upcomingEvents }) => {
       }),
       headers: { "Content-Type": "application/json" },
     });
-
   };
+  console.log(upcomingEvents);
 
   return (
     <main>
@@ -198,7 +198,46 @@ const IndividualMember = ({ member, upcomingEvents }) => {
         </section>
       )}
       {upcomingEvents.length > 0 && (
-        <section className="p-full flex flex-col gap-8"></section>
+        <section className="p-full flex flex-col gap-8">
+          <TypographyH3>{`${fullName}'s upcoming events`}</TypographyH3>
+          {upcomingEvents.map((event) => (
+            <div className=" flex flex-col gap-8" key={event.id}>
+              <div>
+                <TypographyP>
+                  {fullName} {event.ocassion}
+                </TypographyP>
+                <TypographyP>{event.date}</TypographyP>
+                <TypographyP className="capitalize">
+                  {event.giftType}
+                </TypographyP>
+                <ul className="space-y-8 md:space-y-4">
+                  {event.suggestedGifts.split(",").map((gift) => (
+                    <div
+                      key={gift.gift}
+                      className={clsx(
+                        "flex flex-col md:flex-row md:items-center gap-2 md:gap-4"
+                      )}
+                    >
+                      <li
+                        className={clsx(
+                          "p-2 w-full border-2 border-transparent rounded-lg flex flex-col bg-amber-200"
+                        )}
+                      >
+                        <p>{gift}</p>
+                      </li>
+                      <Button
+                        onClick={(e) => generateSimilarGifts(e, gift.gift)}
+                        className="self-start md:self-center md:py-8 md:text-base  md:w-[300px]"
+                      >
+                        Give me more similar ideas
+                      </Button>
+                    </div>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </section>
       )}
       <div className="p-full">
         <Button
@@ -271,12 +310,12 @@ const IndividualMember = ({ member, upcomingEvents }) => {
               step={1}
             />
           </div>
-            <Button
-              disabled={isGenerating ? true : false}
-              className="w-fit col-span-2"
-            >
-              {generatedGifts.length === 0 ? "Generate Gifts" : "Save Event"}
-            </Button>
+          <Button
+            disabled={isGenerating ? true : false}
+            className="w-fit col-span-2"
+          >
+            {generatedGifts.length === 0 ? "Generate Gifts" : "Save Event"}
+          </Button>
         </form>
       )}
       {generatedGifts.length > 0 && (
@@ -330,23 +369,25 @@ const IndividualMember = ({ member, upcomingEvents }) => {
 export async function getServerSideProps(context) {
   // get the id from the url
   const { id } = context.query;
-  const member = await prisma.member.findUnique({ where: { id: 1 }, select: {
-    events: true,
-    fullName: true,
-    relationship: true,
-    hobbies: true,
-    gender: true,
-    age: true,
-    id: true,
-  } });
-  console.log(member);
-  const convertDateToReadable = date => {
+  const member = await prisma.member.findUnique({
+    where: { id: parseInt(id) },
+    select: {
+      events: true,
+      fullName: true,
+      relationship: true,
+      hobbies: true,
+      gender: true,
+      age: true,
+      id: true,
+    },
+  });
+  const convertDateToReadable = (date) => {
     const dateObj = new Date(date);
-    const month = dateObj.toLocaleString('default', { month: 'long' });
+    const month = dateObj.toLocaleString("default", { month: "long" });
     const day = dateObj.getDate();
     const year = dateObj.getFullYear();
     return `${day} ${month} ${year}`;
-  }
+  };
   const upcomingEvents = member.events.map((event) => {
     return {
       id: event.id,
@@ -355,8 +396,9 @@ export async function getServerSideProps(context) {
       giftType: event.giftType,
       previousGifts: event.previousGifts,
       budget: event.budget,
+      suggestedGifts: event.suggestedGifts,
     };
-  })
+  });
   return {
     props: {
       member,
