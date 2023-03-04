@@ -201,7 +201,10 @@ const IndividualMember = ({ member, upcomingEvents }) => {
         <section className="p-full flex flex-col gap-8">
           <TypographyH3>{`${fullName}'s upcoming events`}</TypographyH3>
           {upcomingEvents.map((event) => (
-            <div className=" flex flex-col gap-8" key={event.id}>
+            <div
+              className=" flex flex-col gap-8 w-[400px] border border-slate-500 p-4"
+              key={event.id}
+            >
               <div>
                 <TypographyP>
                   {fullName} {event.ocassion}
@@ -225,12 +228,6 @@ const IndividualMember = ({ member, upcomingEvents }) => {
                       >
                         <p>{gift}</p>
                       </li>
-                      <Button
-                        onClick={(e) => generateSimilarGifts(e, gift.gift)}
-                        className="self-start md:self-center md:py-8 md:text-base  md:w-[300px]"
-                      >
-                        Give me more similar ideas
-                      </Button>
                     </div>
                   ))}
                 </ul>
