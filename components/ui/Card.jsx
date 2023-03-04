@@ -6,7 +6,7 @@ const Card = ({ id, fullName, relationship, hobbies }) => {
   return (
     <Link
       href={`/dashboard/${id}`}
-      className="card p-7 bg-purple-50 w-[300px] h-[350px] shadow-lg"
+      className="card p-7 bg-purple-50 w-[300px] h-[250px] shadow-lg"
     >
       <div className="space-y-4 flex flex-col h-full justify-between">
         <div>

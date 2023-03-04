@@ -1,11 +1,12 @@
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import Logo from "../public/logo.svg";
 
 const Navbar = () => {
   return (
     <header className="flex flex-row justify-between items-center p-full">
-      <Logo className="w-32 md:w-auto"/>
+      <Image  
+      src="/logo.png" alt="Logo" width={100} height={50}/>
       <nav className="text-lg space-x-5">
         <Link href="/"> Home </Link>
         <Link href="/dashboard"> Dashboard </Link>

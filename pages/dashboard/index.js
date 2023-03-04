@@ -64,7 +64,9 @@ const Dashboard = ({ members, upcomingEvents }) => {
         )}
         {upcomingEvents.length > 0 && (
           <div className="space-y-4">
-            {upcomingEvents.map((event) => {
+            {upcomingEvents
+            .sort((a, b) => new Date(a.date) - new Date(b.date))
+            .map((event) => {
               return (
                 <div key={event.id}>
                   <TypographyP className="font-bold">

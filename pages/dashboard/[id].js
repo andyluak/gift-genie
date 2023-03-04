@@ -161,8 +161,12 @@ const IndividualMember = ({ member, upcomingEvents }) => {
       }),
       headers: { "Content-Type": "application/json" },
     });
+
+    setGeneratedGifts([]);
+    setSelectedGifts([]);
+    setBudgetValue(0);
+    setIsAddingEvent(false);
   };
-  console.log(upcomingEvents);
 
   return (
     <main>
@@ -200,40 +204,42 @@ const IndividualMember = ({ member, upcomingEvents }) => {
       {upcomingEvents.length > 0 && (
         <section className="p-full flex flex-col gap-8">
           <TypographyH3>{`${fullName}'s upcoming events`}</TypographyH3>
-          {upcomingEvents.map((event) => (
-            <div
-              className=" flex flex-col gap-8 w-[400px] border border-slate-500 p-4"
-              key={event.id}
-            >
-              <div>
-                <TypographyP>
-                  {fullName} {event.ocassion}
-                </TypographyP>
-                <TypographyP>{event.date}</TypographyP>
-                <TypographyP className="capitalize">
-                  {event.giftType}
-                </TypographyP>
-                <ul className="space-y-8 md:space-y-4">
-                  {event.suggestedGifts.split(",").map((gift) => (
-                    <div
-                      key={gift.gift}
-                      className={clsx(
-                        "flex flex-col md:flex-row md:items-center gap-2 md:gap-4"
-                      )}
-                    >
-                      <li
+          <div className="flex flex-row gap-8">
+            {upcomingEvents.map((event) => (
+              <div
+                className=" flex flex-col gap-8 w-[300px] border border-purple-500 p-4 shadow-lg"
+                key={event.id}
+              >
+                <div className="flex flex-col gap-2">
+                  <TypographyP>
+                    {fullName} {event.ocassion}
+                  </TypographyP>
+                  <TypographyP>{event.date}</TypographyP>
+                  <TypographyP className="capitalize">
+                    {event.giftType}
+                  </TypographyP>
+                  <ul className="space-y-8 md:space-y-4">
+                    {event.suggestedGifts.split(",").map((gift) => (
+                      <div
+                        key={gift.gift}
                         className={clsx(
-                          "p-2 w-full border-2 border-transparent rounded-lg flex flex-col bg-amber-200"
+                          "flex flex-col md:flex-row md:items-center gap-2 md:gap-4"
                         )}
                       >
-                        <p>{gift}</p>
-                      </li>
-                    </div>
-                  ))}
-                </ul>
+                        <li
+                          className={clsx(
+                            "p-2 w-full border-2 border-transparent rounded-lg flex flex-col bg-purple-200"
+                          )}
+                        >
+                          <p>{gift}</p>
+                        </li>
+                      </div>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </section>
       )}
       <div className="p-full">
@@ -337,7 +343,7 @@ const IndividualMember = ({ member, upcomingEvents }) => {
                     setSelectedGifts((prev) => [...prev, gift.gift]);
                   }}
                   className={clsx(
-                    "p-2 w-full border-2 border-transparent rounded-lg flex flex-col bg-amber-200",
+                    "p-2 w-full border-2 border-transparent rounded-lg flex flex-col bg-purple-200",
                     {
                       "border-2 !border-gray-600": selectedGifts.includes(
                         gift.gift
