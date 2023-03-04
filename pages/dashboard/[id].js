@@ -49,8 +49,8 @@ const IndividualMember = ({ member, upcomingEvents }) => {
     const openai = new OpenAIApi(configuration);
 
     const MODEL = "text-davinci-003";
-    const MAX_TOKENS = 400;
-    const TEMPERATURE = 0.7;
+    const MAX_TOKENS = 1000;
+    const TEMPERATURE = 0.5;
     const TOP_P = 1;
     const FREQUENCY_PENALTY = 0;
     const PRESENCE_PENALTY = 0;
@@ -118,8 +118,8 @@ const IndividualMember = ({ member, upcomingEvents }) => {
     const openai = new OpenAIApi(configuration);
 
     const MODEL = "text-davinci-003";
-    const MAX_TOKENS = 400;
-    const TEMPERATURE = 0.7;
+    const MAX_TOKENS = 1000;
+    const TEMPERATURE = 0.5;
     const TOP_P = 1;
     const FREQUENCY_PENALTY = 0;
     const PRESENCE_PENALTY = 0;
@@ -207,7 +207,7 @@ const IndividualMember = ({ member, upcomingEvents }) => {
           <div className="flex flex-row gap-8">
             {upcomingEvents.map((event) => (
               <div
-                className=" flex flex-col gap-8 w-[300px] border border-purple-500 p-4 shadow-lg"
+                className=" flex flex-col gap-8 w-[300px] border border-purple-500 p-4 shadow-lg hover:shadow-2xl rounded-md"
                 key={event.id}
               >
                 <div className="flex flex-col gap-2">

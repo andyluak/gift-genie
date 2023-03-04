@@ -25,7 +25,7 @@ export default function Home() {
             <TypographyH1>Welcome to GiftGenie</TypographyH1>
             <TypographyH3>Find the Perfect Gift for Anyone</TypographyH3>
           </div>
-          <Image src="/gift.jpg" alt="GiftGenie" width={800} height={800} />
+          <Image src="/Untitled_Artwork.png" width={500} height={500} alt="2 hands giving gifts"/>
         </div>
       </main>
     </>
