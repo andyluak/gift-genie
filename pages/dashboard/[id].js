@@ -244,7 +244,11 @@ const IndividualMember = ({ member, upcomingEvents }) => {
       )}
       <div className="p-full">
         <Button
-          onClick={() => setIsAddingEvent(!isAddingEvent)}
+          onClick={() => {
+            setIsAddingEvent(!isAddingEvent)
+            // set focus on input after button is clicked with a timeout
+            setTimeout(() => { document.getElementById('ocassion')?.focus() } , 100)
+          }}
           className="self-start"
         >
           Add Event
@@ -315,7 +319,9 @@ const IndividualMember = ({ member, upcomingEvents }) => {
           </div>
           <Button
             disabled={isGenerating ? true : false}
-            className="w-fit col-span-2"
+            className={clsx("w-fit col-span-2", {
+              "animate-pulse" : isGenerating
+            })}
           >
             {generatedGifts.length === 0 ? "Generate Gifts" : "Save Event"}
           </Button>
