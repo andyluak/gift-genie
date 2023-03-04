@@ -69,7 +69,7 @@ const Dashboard = ({ members, upcomingEvents }) => {
               return (
                 <div key={event.id}>
                   <TypographyP className="font-bold">
-                    {event.fullName} {event.eventType}
+                    {event.member.fullName} {event.ocassion}
                   </TypographyP>
                   <TypographyP className="text-sm">
                     {formatDate(event.date)}
@@ -85,18 +85,18 @@ const Dashboard = ({ members, upcomingEvents }) => {
 };
 
 export async function getServerSideProps(context) {
-  const members =await  prisma.member.findMany()
+  const members = await prisma.member.findMany();
+  const events = await prisma.event.findMany({
+    select: {
+      member: true,
+      ocassion: true,
+      date: true,
+    },
+  });
   return {
     props: {
       members,
-      upcomingEvents: [
-        {
-          id: 1,
-          fullName: "John Doe",
-          eventType: "Birthday",
-          date: "2021-08-01",
-        },
-      ],
+      upcomingEvents: events,
     },
   };
 }
