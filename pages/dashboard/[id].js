@@ -17,6 +17,7 @@ import {
 import { Slider } from "@/components/ui/Slider";
 import { prisma } from "@/db/client";
 import mockUser from "@/mock/mockUser.json";
+import clsx from "clsx";
 import { Configuration, OpenAIApi } from "openai";
 import React, { useState } from "react";
 
@@ -24,10 +25,12 @@ const IndividualMember = ({ member, upcomingEvents }) => {
   const [isAddingEvent, setIsAddingEvent] = useState(false);
   const [budgetValue, setBudgetValue] = useState(100);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedGifts, setGeneratedGifts] = useState([]);
-  const { fullName, relationship, hobbies, age, gender } = member;
 
-  const formattedHobbies = hobbies.split(',').map((hobby) => {
+  const [generatedGifts, setGeneratedGifts] = useState([]);
+  const [selectedGifts, setSelectedGifts] = useState([]);
+
+  const { fullName, relationship, hobbies, age, gender } = member;
+  const formattedHobbies = hobbies.split(",").map((hobby) => {
     return { value: hobby, label: hobby };
   });
 
@@ -38,8 +41,6 @@ const IndividualMember = ({ member, upcomingEvents }) => {
     const formData = Object.fromEntries(form);
 
     const { giftType, previousGifts, ocassion } = formData;
-
-    const joinedHobbies = hobbies.join(", ");
 
     const API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
     const configuration = new Configuration({
@@ -56,15 +57,16 @@ const IndividualMember = ({ member, upcomingEvents }) => {
 
     const prompt = `
     PROMPT: 
-    Return a list of 5 perfect gifts based on the information I provide. All gifts must be findable on amazon and with the brand also. I want to be able to copy the name and find it AND must be within the budget. Return the response in JSON format.
+    Return a list of 5 perfect gifts based on the information I provide. All gifts must be findable on amazon and with the brand also. I want to be able to copy the name and find it AND must be within the budget. Return the response in JSON FORMAT.
     Here is the information you will need to complete the task:
     * Name: ${fullName}
     * Age: ${age}
     * Gender: ${gender}
-    * Hobbies and likes: ${joinedHobbies}
+    * Hobbies and likes: ${hobbies}
     * Previous gifts received: ${previousGifts}
     * Gift type: ${giftType}
     * Budget: $${budgetValue}
+    * Occasion: ${ocassion}
 
     EXAMPLE OUTPUT: 
 
@@ -135,9 +137,31 @@ const IndividualMember = ({ member, upcomingEvents }) => {
     const { data } = response;
     const { choices } = data;
     const { text } = choices[0];
-    console.log(JSON.parse(`${text}`));
+    console.log(JSON.parse(text));
     setGeneratedGifts((prev) => [...prev, ...JSON.parse(`${text}`)]);
     setIsGenerating(false);
+  };
+
+  const onAddEvent = async (e) => {
+    e.preventDefault();
+    const form = new FormData(e.target);
+    const formData = Object.fromEntries(form);
+    const { ocassion, giftType, previousGifts, date } = formData;
+    const gifts = selectedGifts.join(", ");
+    const response = await fetch("/api/add-event", { 
+      method: "POST", 
+      body: JSON.stringify({
+        ocassion, 
+        giftType,
+        previousGifts,
+        date,
+        budget: budgetValue,
+        suggestedGifts: gifts,
+        memberId: member.id,
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+
   };
 
   return (
@@ -187,7 +211,9 @@ const IndividualMember = ({ member, upcomingEvents }) => {
       {isAddingEvent && (
         <form
           className="p-full grid grid-cols-1 md:grid-cols-2 gap-8"
-          onSubmit={generateCompletion}
+          onSubmit={
+            generatedGifts.length === 0 ? generateCompletion : onAddEvent
+          }
         >
           <div className="space-y-2 col-span-2 md:col-span-1">
             <Label htmlFor="ocassion">Ocassion for gift</Label>
@@ -245,12 +271,12 @@ const IndividualMember = ({ member, upcomingEvents }) => {
               step={1}
             />
           </div>
-          <Button
-            disabled={isGenerating ? true : false}
-            className="w-fit col-span-2"
-          >
-            Give me ideas!
-          </Button>
+            <Button
+              disabled={isGenerating ? true : false}
+              className="w-fit col-span-2"
+            >
+              {generatedGifts.length === 0 ? "Generate Gifts" : "Save Event"}
+            </Button>
         </form>
       )}
       {generatedGifts.length > 0 && (
@@ -260,11 +286,31 @@ const IndividualMember = ({ member, upcomingEvents }) => {
             {generatedGifts.map((gift) => (
               <div
                 key={gift.gift}
-                className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4"
+                className={clsx(
+                  "flex flex-col md:flex-row md:items-center gap-2 md:gap-4"
+                )}
               >
-                <li className="p-2 w-full rounded-lg flex flex-col bg-amber-200">
+                <li
+                  onClick={() => {
+                    if (selectedGifts.includes(gift.gift)) {
+                      setSelectedGifts((prev) =>
+                        prev.filter((item) => item !== gift.gift)
+                      );
+                      return;
+                    }
+                    setSelectedGifts((prev) => [...prev, gift.gift]);
+                  }}
+                  className={clsx(
+                    "p-2 w-full border-2 border-transparent rounded-lg flex flex-col bg-amber-200",
+                    {
+                      "border-2 !border-gray-600": selectedGifts.includes(
+                        gift.gift
+                      ),
+                    }
+                  )}
+                >
                   <p>{gift.gift}</p>
-                  <p className="font-bold">{gift.estimatedPrice}</p>
+                  <p className="font-bold">${gift.estimatedPrice}</p>
                 </li>
                 <Button
                   onClick={(e) => generateSimilarGifts(e, gift.gift)}
@@ -284,11 +330,37 @@ const IndividualMember = ({ member, upcomingEvents }) => {
 export async function getServerSideProps(context) {
   // get the id from the url
   const { id } = context.query;
-  const member = await prisma.member.findUnique({ where: { id: 1 } });
+  const member = await prisma.member.findUnique({ where: { id: 1 }, select: {
+    events: true,
+    fullName: true,
+    relationship: true,
+    hobbies: true,
+    gender: true,
+    age: true,
+    id: true,
+  } });
+  console.log(member);
+  const convertDateToReadable = date => {
+    const dateObj = new Date(date);
+    const month = dateObj.toLocaleString('default', { month: 'long' });
+    const day = dateObj.getDate();
+    const year = dateObj.getFullYear();
+    return `${day} ${month} ${year}`;
+  }
+  const upcomingEvents = member.events.map((event) => {
+    return {
+      id: event.id,
+      date: convertDateToReadable(event.date),
+      ocassion: event.ocassion,
+      giftType: event.giftType,
+      previousGifts: event.previousGifts,
+      budget: event.budget,
+    };
+  })
   return {
     props: {
       member,
-      upcomingEvents: [],
+      upcomingEvents,
     },
   };
 }
