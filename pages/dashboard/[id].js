@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/Select";
 import { Slider } from "@/components/ui/Slider";
+import { prisma } from "@/db/client";
 import mockUser from "@/mock/mockUser.json";
 import { Configuration, OpenAIApi } from "openai";
 import React, { useState } from "react";
@@ -26,7 +27,7 @@ const IndividualMember = ({ member, upcomingEvents }) => {
   const [generatedGifts, setGeneratedGifts] = useState([]);
   const { fullName, relationship, hobbies, age, gender } = member;
 
-  const formattedHobbies = hobbies.map((hobby) => {
+  const formattedHobbies = hobbies.split(',').map((hobby) => {
     return { value: hobby, label: hobby };
   });
 
@@ -281,7 +282,9 @@ const IndividualMember = ({ member, upcomingEvents }) => {
 };
 
 export async function getServerSideProps(context) {
-  const member = mockUser;
+  // get the id from the url
+  const { id } = context.query;
+  const member = await prisma.member.findUnique({ where: { id: 1 } });
   return {
     props: {
       member,

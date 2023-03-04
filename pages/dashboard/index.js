@@ -42,7 +42,7 @@ const Dashboard = ({ members, upcomingEvents }) => {
       <section className="p-full space-y-4 md:space-y-8 md:col-span-3">
         <TypographyH1>Your Members</TypographyH1>
         <div className="grid grid-cols-1 gap-12 gap-x-32 md:grid-cols-2 place-content-between">
-          {members.map((member) => { 
+          {members.map((member) => {
             return (
               <Card
                 key={member.id}
